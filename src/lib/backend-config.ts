@@ -5,12 +5,16 @@ export const getBackendUrl = (): string => {
     process.env.NODE_ENV === 'production' || 
     process.env.VERCEL_ENV === 'production' ||
     process.env.RENDER === 'true';
-  const backendUrl = isProduction
-    ? (process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'https://api.dailyvaibe.com')
-    : (process.env.BACKEND_URL || 'http://localhost:5000');
-  const cleanUrl = backendUrl.replace(/\/$/, '');
-  console.log(`[${isProduction ? 'PROD' : 'DEV'}] Backend URL: ${cleanUrl}`);
-  return cleanUrl;
+  
+  if (process.env.BACKEND_URL) {
+    return process.env.BACKEND_URL.replace(/\/$/, '');
+  }
+  
+  if (isProduction) {
+    return 'https://api.dailyvaibe.com';
+  }
+  
+  return 'http://localhost:5000';
 };
 
 export const buildHeadersFromRequest = (
@@ -52,7 +56,6 @@ export const forwardCookies = (
   nextResponse: NextResponse
 ): void => {
   if (!backendResponse || !nextResponse) {
-    console.warn('Invalid response objects for cookie forwarding');
     return;
   }
   try {
@@ -63,17 +66,12 @@ export const forwardCookies = (
       try {
         const cookieArray = backendResponse.headers.getSetCookie();
         if (Array.isArray(cookieArray) && cookieArray.length > 0) {
-          let forwardedCount = 0;
           cookieArray.forEach(cookie => {
             if (cookie && typeof cookie === 'string' && cookie.trim()) {
               nextResponse.headers.append('Set-Cookie', cookie);
-              forwardedCount++;
             }
           });
-          if (forwardedCount > 0) {
-            console.log(`Forwarded ${forwardedCount} cookie(s) via getSetCookie()`);
-            return;
-          }
+          return;
         }
       } catch (err) {
       }
@@ -82,23 +80,16 @@ export const forwardCookies = (
       const setCookieHeader = backendResponse.headers.get('set-cookie');
       if (setCookieHeader && typeof setCookieHeader === 'string') {
         const cookies = setCookieHeader.split(/,(?=\s*\w+=)/);
-        let forwardedCount = 0;
         cookies.forEach(cookie => {
           const trimmedCookie = cookie.trim();
           if (trimmedCookie) {
             nextResponse.headers.append('Set-Cookie', trimmedCookie);
-            forwardedCount++;
           }
         });
-        if (forwardedCount > 0) {
-          console.log(`Forwarded ${forwardedCount} cookie(s) via get()`);
-          return;
-        }
       }
     } catch (err) {
     }
   } catch (error) {
-    console.warn('Cookie forwarding encountered error (non-critical):', error);
   }
 };
 
@@ -125,7 +116,6 @@ export async function safeFetch(
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
     try {
-      console.log(`[Attempt ${attempt + 1}/${retries + 1}] ${rest.method || 'GET'} ${url.substring(0, 100)}...`);
       const response = await fetch(url, {
         method: 'GET',
         cache: 'no-store',
@@ -136,29 +126,18 @@ export async function safeFetch(
       });
       clearTimeout(timeoutId);
       if (response.ok) {
-        console.log(`${response.status} from ${url.substring(0, 100)}...`);
         return response;
       }
       if (response.status >= 500 && attempt < retries) {
         const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
-        console.warn(`Server error ${response.status}, retrying in ${delay}ms...`);
         await new Promise(resolve => setTimeout(resolve, delay));
         continue;
       }
-      console.warn(`${response.status} from ${url.substring(0, 100)}...`);
       return response;
     } catch (error) {
       clearTimeout(timeoutId);
-      if (error instanceof Error) {
-        if (error.name === 'AbortError') {
-          console.error(`Request timeout after ${timeout}ms`);
-        } else {
-          console.error(`Fetch error: ${error.message}`);
-        }
-      }
       if (attempt < retries) {
         const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
-        console.warn(`Retrying in ${delay}ms...`);
         await new Promise(resolve => setTimeout(resolve, delay));
         continue;
       }
@@ -173,7 +152,6 @@ export function createErrorResponse(
   statusCode: number = 500,
   additionalData: Record<string, any> = {}
 ): NextResponse {
-  console.error(`Error Response [${statusCode}]: ${message}`);
   return NextResponse.json(
     {
       success: false,
@@ -207,7 +185,6 @@ export function withErrorHandler(
     try {
       return await handler(request);
     } catch (error) {
-      console.error('Unhandled error in route:', error);
       const errorMessage = error instanceof Error ? error.message : 'Internal server error';
       return createErrorResponse(
         errorMessage,
