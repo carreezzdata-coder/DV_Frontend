@@ -34,7 +34,7 @@ import '../../../../styles/components_styles/articles/ArticleContent.css';
 import '../../../../styles/components_styles/articles/ArticleMedia.css';
 import '../../../../styles/components_styles/articles/ArticleSidebar.css';
 import '../../../../styles/components_styles/articles/RelatedArticles.css';
-import '../../../../styles/components_styles/articles/Lightbox.css';
+import '../../../../styles/components_styles/articles/LightBox.css';
 import '../../../../styles/components_styles/articles/ArticleUtilities.css';
 
 import { API_CONFIG } from '@/lib/api-config';
