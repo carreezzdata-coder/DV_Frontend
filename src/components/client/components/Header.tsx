@@ -92,6 +92,7 @@ export default function Header({ currentTheme, onThemeChange }: HeaderProps) {
   const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const [layoutMode, setLayoutMode] = useState<'full' | 'compact' | 'minimal'>('full');
 
   const cycleTheme = () => {
     const themes = ['white', 'dark', 'african'];
@@ -101,12 +102,76 @@ export default function Header({ currentTheme, onThemeChange }: HeaderProps) {
   };
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 992);
+    const intelligentResize = () => {
+      const width = window.innerWidth;
+      
+      // Check if mobile
+      const isMobileDevice = width <= 992;
+      setIsMobile(isMobileDevice);
+      
+      if (!isMobileDevice) {
+        setLayoutMode('full');
+        document.documentElement.style.setProperty('--header-icon-size', '48px');
+        document.documentElement.style.setProperty('--header-icon-svg', '24px');
+        document.documentElement.style.setProperty('--header-gap', '14px');
+        document.documentElement.style.setProperty('--logo-display', 'flex');
+        document.documentElement.style.setProperty('--header-padding', '12px 32px');
+        return;
+      }
+      
+      // Calculate available space for icons
+      // Reserve space: logo (80-150px), theme (40px), margins (30px)
+      const reservedSpace = width < 380 ? 150 : 180;
+      const availableSpace = width - reservedSpace;
+      const iconCount = 6; // search + 5 nav icons
+      
+      // Calculate optimal icon size
+      const minIconSize = 32;
+      const maxIconSize = 42;
+      const calculatedIconSize = Math.floor(availableSpace / (iconCount * 1.5)); // 1.5 factor for gaps
+      const optimalIconSize = Math.max(minIconSize, Math.min(maxIconSize, calculatedIconSize));
+      
+      // Determine layout mode based on space constraints
+      if (width >= 420 && optimalIconSize >= 38) {
+        // Full logo with text "Daily Vaibe"
+        setLayoutMode('full');
+        document.documentElement.style.setProperty('--header-icon-size', `${optimalIconSize}px`);
+        document.documentElement.style.setProperty('--header-icon-svg', `${Math.floor(optimalIconSize * 0.5)}px`);
+        document.documentElement.style.setProperty('--header-gap', '6px');
+        document.documentElement.style.setProperty('--logo-display', 'flex');
+        document.documentElement.style.setProperty('--header-padding', '10px 12px');
+      } else if (width >= 360) {
+        // Compact logo (just "DV")
+        setLayoutMode('compact');
+        const compactIconSize = Math.max(32, Math.min(38, optimalIconSize));
+        document.documentElement.style.setProperty('--header-icon-size', `${compactIconSize}px`);
+        document.documentElement.style.setProperty('--header-icon-svg', `${Math.floor(compactIconSize * 0.5)}px`);
+        document.documentElement.style.setProperty('--header-gap', '4px');
+        document.documentElement.style.setProperty('--logo-display', 'none');
+        document.documentElement.style.setProperty('--header-padding', '8px 8px');
+      } else {
+        // Minimal - smallest icons, compact logo
+        setLayoutMode('minimal');
+        document.documentElement.style.setProperty('--header-icon-size', '32px');
+        document.documentElement.style.setProperty('--header-icon-svg', '16px');
+        document.documentElement.style.setProperty('--header-gap', '3px');
+        document.documentElement.style.setProperty('--logo-display', 'none');
+        document.documentElement.style.setProperty('--header-padding', '7px 6px');
+      }
     };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+
+    intelligentResize();
+    window.addEventListener('resize', intelligentResize);
+    window.addEventListener('orientationchange', intelligentResize);
+    
+    // Small delay for initial render
+    const timer = setTimeout(intelligentResize, 100);
+    
+    return () => {
+      window.removeEventListener('resize', intelligentResize);
+      window.removeEventListener('orientationchange', intelligentResize);
+      clearTimeout(timer);
+    };
   }, []);
 
   useEffect(() => {
@@ -127,8 +192,8 @@ export default function Header({ currentTheme, onThemeChange }: HeaderProps) {
           <div className="logo-section">
             <div className="logo-container" onClick={() => router.push('/client')} role="button" tabIndex={0}>
               <div className="logo-text">
-                <span className="logo-daily">Daily</span>
-                <span className="logo-vaibe">Vaibe</span>
+                <span className="logo-daily">D{layoutMode === 'full' ? 'aily' : ''}</span>
+                <span className="logo-vaibe">V{layoutMode === 'full' ? 'aibe' : ''}</span>
               </div>
             </div>
           </div>
