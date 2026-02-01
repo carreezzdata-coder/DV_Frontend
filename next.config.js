@@ -4,18 +4,26 @@ const nextConfig = {
   
   images: {
     unoptimized: true,
-    domains: ['dailyvaibe-backend.onrender.com', 'localhost'],
+    domains: ['api.dailyvaibe.com', 'dailyvaibe.com', 'admin.dailyvaibe.com'],
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**',
+        hostname: 'api.dailyvaibe.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'dailyvaibe.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '**.dailyvaibe.com',
       },
     ],
   },
   
   env: {
     PROJECT_ID: 'dailyvaibe-app',
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://dailyvaibe-backend.onrender.com',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://api.dailyvaibe.com',
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'https://dailyvaibe.com',
   },
   
@@ -67,7 +75,7 @@ const nextConfig = {
           },
           {
             key: 'Access-Control-Allow-Origin',
-            value: process.env.NEXT_PUBLIC_API_URL || 'https://dailyvaibe-backend.onrender.com'
+            value: 'https://api.dailyvaibe.com'
           },
           {
             key: 'Access-Control-Allow-Methods',
@@ -91,13 +99,12 @@ const nextConfig = {
     ];
   },
 
-  // Add rewrites for API proxy to avoid CORS issues
   async rewrites() {
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://dailyvaibe-backend.onrender.com';
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_URL || 'https://api.dailyvaibe.com';
     
     return [
       {
-        source: '/backend-api/:path*',
+        source: '/api/:path*',
         destination: `${backendUrl}/api/:path*`,
       },
     ];
