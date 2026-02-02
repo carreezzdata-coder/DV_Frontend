@@ -144,11 +144,16 @@ const CreatePosts: React.FC<CreatePostsProps> = ({
     fetchCategories();
   }, []);
 
-  const fetchCategories = async () => {
+  const fetchCategories = async (): Promise<void> => {
     setCategoriesLoading(true);
     setCategoriesError(null);
 
     try {
+      console.log('[Frontend CreatePosts] Fetching categories...');
+      
+      // CORRECTED: Use query parameter to specify we want categories
+      // Route: frontend/src/app/api/admin/createposts/route.ts
+      // Backend: backend/routes/admin/createposts/categories.js (via /api/admin/categories)
       const response = await fetch('/api/admin/createposts?endpoint=categories', {
         method: 'GET',
         credentials: 'include',
@@ -158,11 +163,16 @@ const CreatePosts: React.FC<CreatePostsProps> = ({
         }
       });
 
+      console.log('[Frontend CreatePosts] Response status:', response.status);
+
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('[Frontend CreatePosts] Error response:', errorText);
         throw new Error(`Failed to fetch categories: ${response.statusText}`);
       }
 
       const data = await response.json();
+      console.log('[Frontend CreatePosts] Data received:', data);
 
       if (!data.success) {
         throw new Error(data.message || 'Failed to load categories');
@@ -196,23 +206,24 @@ const CreatePosts: React.FC<CreatePostsProps> = ({
         }
       });
 
+      console.log('[Frontend CreatePosts] Processed groups:', groupsArray.length, 'categories:', categoriesFlat.length);
       setCategoryGroups(groupsArray);
       setAllCategories(categoriesFlat);
     } catch (error) {
-      console.error('[Categories] Error:', error);
+      console.error('[Frontend CreatePosts] Categories error:', error);
       setCategoriesError(error instanceof Error ? error.message : 'Unknown error');
     } finally {
       setCategoriesLoading(false);
     }
   };
 
-  const handleStage1Submit = (data: Stage1Data) => {
+  const handleStage1Submit = (data: Stage1Data): void => {
     setStage1Data(data);
     setCurrentStage(2);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleStage2Submit = (data: Stage2Data) => {
+  const handleStage2Submit = (data: Stage2Data): void => {
     setStage2Data(data);
     
     if (data.autoGenerateMeta && data.generatedMetadata) {
@@ -228,12 +239,12 @@ const CreatePosts: React.FC<CreatePostsProps> = ({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleStage3Submit = async (data: Stage3Data, actionType: 'draft' | 'publish') => {
+  const handleStage3Submit = async (data: Stage3Data, actionType: 'draft' | 'publish'): Promise<void> => {
     setStage3Data(data);
     await handleFinalSubmit(data, actionType);
   };
 
-  const handleDirectSubmit = async (data: Stage2Data, actionType: 'draft' | 'publish') => {
+  const handleDirectSubmit = async (data: Stage2Data, actionType: 'draft' | 'publish'): Promise<void> => {
     setStage2Data(data);
     
     const defaultStage3Data: Stage3Data = {
@@ -249,7 +260,7 @@ const CreatePosts: React.FC<CreatePostsProps> = ({
   const handleFinalSubmit = async (
     finalStage3Data: Stage3Data,
     actionType: 'draft' | 'publish'
-  ) => {
+  ): Promise<void> => {
     setIsSubmitting(true);
     setMessage(null);
 
@@ -313,6 +324,9 @@ const CreatePosts: React.FC<CreatePostsProps> = ({
         });
       }
 
+      // POST to the same route (no query parameter needed for POST)
+      // Route: frontend/src/app/api/admin/createposts/route.ts
+      // Backend: backend/routes/admin/createposts/createposts.js (via /api/admin/createposts)
       const response = await fetch('/api/admin/createposts', {
         method: 'POST',
         headers: {
@@ -379,7 +393,7 @@ const CreatePosts: React.FC<CreatePostsProps> = ({
     }
   };
 
-  const handleBack = () => {
+  const handleBack = (): void => {
     if (currentStage === 2) {
       setCurrentStage(1);
     } else if (currentStage === 3) {
