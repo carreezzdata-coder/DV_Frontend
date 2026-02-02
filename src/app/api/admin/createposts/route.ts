@@ -1,3 +1,6 @@
+// File location: frontend/src/app/api/admin/createposts/route.ts
+// This is the ONLY route file needed - it handles both categories and news operations
+
 import { NextRequest, NextResponse } from 'next/server';
 import { getBackendUrl, forwardCookies } from '@/lib/backend-config';
 
@@ -25,47 +28,60 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const endpoint = searchParams.get('endpoint');
     
-    if (endpoint !== 'categories') {
-      return NextResponse.json({
-        success: false,
-        message: 'Invalid endpoint'
-      }, { status: 400, headers: corsHeaders });
+    // CRITICAL: This handles the categories fetch
+    // Frontend calls: /api/admin/createposts?endpoint=categories
+    // This proxies to: backend/routes/admin/createposts/categories.js
+    if (endpoint === 'categories') {
+      const cookieHeader = request.headers.get('Cookie') || '';
+      const backendUrl = getBackendUrl();
+      
+      // Backend path: C:\Projects\DAILY VAIBE\backend\routes\admin\createposts\categories.js
+      // Registered in app.js as: /api/admin/categories
+      const url = `${backendUrl}/api/admin/categories`;
+
+      console.log('[Frontend Route] Fetching categories from:', url);
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Cookie': cookieHeader,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        credentials: 'include',
+        cache: 'no-store'
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('[Frontend Route] Backend error:', response.status, errorText);
+        return NextResponse.json({
+          success: false,
+          message: `Backend error: ${response.statusText}`,
+          error: errorText
+        }, { status: response.status, headers: corsHeaders });
+      }
+
+      const data = await response.json();
+      console.log('[Frontend Route] Categories success, groups:', Object.keys(data.groups || {}).length);
+      
+      const nextResponse = NextResponse.json(data, { 
+        status: 200,
+        headers: corsHeaders
+      });
+      
+      forwardCookies(response, nextResponse);
+      return nextResponse;
     }
-
-    const cookieHeader = request.headers.get('Cookie') || '';
-    const backendUrl = getBackendUrl();
-    const url = `${backendUrl}/api/admin/createposts/categories`;
-
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Cookie': cookieHeader,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      credentials: 'include',
-      cache: 'no-store'
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      return NextResponse.json({
-        success: false,
-        message: `Backend error: ${response.statusText}`,
-        error: errorText
-      }, { status: response.status, headers: corsHeaders });
-    }
-
-    const data = await response.json();
-    const nextResponse = NextResponse.json(data, { 
-      status: 200,
-      headers: corsHeaders
-    });
     
-    forwardCookies(response, nextResponse);
-    return nextResponse;
-    
+    // If endpoint is not 'categories', return error
+    return NextResponse.json({
+      success: false,
+      message: 'Invalid endpoint. Use ?endpoint=categories for categories.'
+    }, { status: 400, headers: corsHeaders });
+
   } catch (error) {
+    console.error('[Frontend Route] GET Error:', error);
     return NextResponse.json({
       success: false,
       message: 'Failed to connect to backend',
@@ -89,9 +105,14 @@ export async function POST(request: NextRequest) {
     }
 
     const backendUrl = getBackendUrl();
-    const url = `${backendUrl}/api/admin/createposts/news`;
+    
+    // Backend path: C:\Projects\DAILY VAIBE\backend\routes\admin\createposts\createposts.js
+    // Registered in app.js as: /api/admin/createposts
+    const url = `${backendUrl}/api/admin/createposts`;
 
     const formData = await request.formData();
+
+    console.log('[Frontend Route] Posting to:', url);
 
     const response = await fetch(url, {
       method: 'POST',
@@ -161,7 +182,10 @@ export async function PUT(request: NextRequest) {
     }
     
     const backendUrl = getBackendUrl();
-    const url = `${backendUrl}/api/admin/createposts/news/${newsId}`;
+    
+    // Backend path: C:\Projects\DAILY VAIBE\backend\routes\admin\createposts\createposts.js
+    // Registered in app.js as: /api/admin/createposts
+    const url = `${backendUrl}/api/admin/createposts/${newsId}`;
 
     const response = await fetch(url, {
       method: 'PUT',
@@ -227,7 +251,10 @@ export async function DELETE(request: NextRequest) {
     }
     
     const backendUrl = getBackendUrl();
-    const url = `${backendUrl}/api/admin/createposts/news/${newsId}`;
+    
+    // Backend path: C:\Projects\DAILY VAIBE\backend\routes\admin\createposts\createposts.js
+    // Registered in app.js as: /api/admin/createposts
+    const url = `${backendUrl}/api/admin/createposts/${newsId}`;
 
     const response = await fetch(url, {
       method: 'DELETE',
