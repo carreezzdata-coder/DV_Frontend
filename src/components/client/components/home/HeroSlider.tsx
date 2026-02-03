@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useState, useRef, useEffect } from 'react';
 import { formatDate, formatNumber, getImageUrl } from '@/lib/clientData';
 import { useSlider } from '@/components/client/hooks/useSlider';
 
@@ -66,6 +66,11 @@ const Slide = memo(({ slide, isActive, onClick }: { slide: SlideArticle; isActiv
 Slide.displayName = 'Slide';
 
 export default function HeroSlider({ slides = [], onSlideClick }: HeroSliderProps) {
+  const [isHovered, setIsHovered] = useState(false);
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
+  const minSwipeDistance = 50;
+
   const {
     currentIndex,
     nextSlide,
@@ -79,6 +84,42 @@ export default function HeroSlider({ slides = [], onSlideClick }: HeroSliderProp
     transitionDuration: 800
   });
 
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchEndX.current = null;
+    touchStartX.current = e.targetTouches[0].clientX;
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStartX.current || !touchEndX.current) return;
+    
+    const distance = touchStartX.current - touchEndX.current;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      nextSlide();
+    } else if (isRightSwipe) {
+      prevSlide();
+    }
+
+    touchStartX.current = null;
+    touchEndX.current = null;
+  };
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+    pauseAutoPlay();
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    resumeAutoPlay();
+  };
+
   if (!slides || slides.length === 0) {
     return (
       <div className="hero-main-wrapper">
@@ -90,7 +131,14 @@ export default function HeroSlider({ slides = [], onSlideClick }: HeroSliderProp
   }
 
   return (
-    <div className="hero-main-wrapper" onMouseEnter={pauseAutoPlay} onMouseLeave={resumeAutoPlay}>
+    <div 
+      className="hero-main-wrapper" 
+      onMouseEnter={handleMouseEnter} 
+      onMouseLeave={handleMouseLeave}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
       <div className="hero-slider-viewport">
         {slides.map((slide, index) => (
           <Slide
@@ -105,28 +153,14 @@ export default function HeroSlider({ slides = [], onSlideClick }: HeroSliderProp
       {slides.length > 1 && (
         <>
           <button 
-            className="hero-nav-button hero-nav-prev" 
+            className={`hero-nav-button hero-nav-prev ${isHovered ? 'nav-visible' : ''}`}
             onClick={prevSlide}
-            style={{
-              background: 'rgba(0, 0, 0, 0.3)',
-              backdropFilter: 'blur(10px)',
-              fontSize: '32px',
-              width: '50px',
-              height: '50px'
-            }}
           >
             ‹
           </button>
           <button 
-            className="hero-nav-button hero-nav-next" 
+            className={`hero-nav-button hero-nav-next ${isHovered ? 'nav-visible' : ''}`}
             onClick={nextSlide}
-            style={{
-              background: 'rgba(0, 0, 0, 0.3)',
-              backdropFilter: 'blur(10px)',
-              fontSize: '32px',
-              width: '50px',
-              height: '50px'
-            }}
           >
             ›
           </button>
