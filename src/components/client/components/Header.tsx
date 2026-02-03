@@ -105,7 +105,6 @@ export default function Header({ currentTheme, onThemeChange }: HeaderProps) {
     const intelligentResize = () => {
       const width = window.innerWidth;
       
-      // Check if mobile
       const isMobileDevice = width <= 992;
       setIsMobile(isMobileDevice);
       
@@ -119,44 +118,37 @@ export default function Header({ currentTheme, onThemeChange }: HeaderProps) {
         return;
       }
       
-      // Calculate available space for icons
-      // Reserve space: logo (80-150px), theme (40px), margins (30px)
       const reservedSpace = width < 380 ? 150 : 180;
       const availableSpace = width - reservedSpace;
-      const iconCount = 6; // search + 5 nav icons
+      const iconCount = 6;
       
-      // Calculate optimal icon size
-      const minIconSize = 32;
-      const maxIconSize = 42;
-      const calculatedIconSize = Math.floor(availableSpace / (iconCount * 1.5)); // 1.5 factor for gaps
+      const minIconSize = 34;
+      const maxIconSize = 44;
+      const calculatedIconSize = Math.floor(availableSpace / (iconCount * 1.5));
       const optimalIconSize = Math.max(minIconSize, Math.min(maxIconSize, calculatedIconSize));
       
-      // Determine layout mode based on space constraints
       if (width >= 420 && optimalIconSize >= 38) {
-        // Full logo with text "Daily Vaibe"
         setLayoutMode('full');
         document.documentElement.style.setProperty('--header-icon-size', `${optimalIconSize}px`);
-        document.documentElement.style.setProperty('--header-icon-svg', `${Math.floor(optimalIconSize * 0.5)}px`);
+        document.documentElement.style.setProperty('--header-icon-svg', `${Math.floor(optimalIconSize * 0.52)}px`);
+        document.documentElement.style.setProperty('--header-gap', '8px');
+        document.documentElement.style.setProperty('--logo-display', 'flex');
+        document.documentElement.style.setProperty('--header-padding', '10px 14px');
+      } else if (width >= 360) {
+        setLayoutMode('compact');
+        const compactIconSize = Math.max(34, Math.min(40, optimalIconSize));
+        document.documentElement.style.setProperty('--header-icon-size', `${compactIconSize}px`);
+        document.documentElement.style.setProperty('--header-icon-svg', `${Math.floor(compactIconSize * 0.52)}px`);
         document.documentElement.style.setProperty('--header-gap', '6px');
         document.documentElement.style.setProperty('--logo-display', 'flex');
-        document.documentElement.style.setProperty('--header-padding', '10px 12px');
-      } else if (width >= 360) {
-        // Compact logo (just "DV")
-        setLayoutMode('compact');
-        const compactIconSize = Math.max(32, Math.min(38, optimalIconSize));
-        document.documentElement.style.setProperty('--header-icon-size', `${compactIconSize}px`);
-        document.documentElement.style.setProperty('--header-icon-svg', `${Math.floor(compactIconSize * 0.5)}px`);
-        document.documentElement.style.setProperty('--header-gap', '4px');
-        document.documentElement.style.setProperty('--logo-display', 'none');
-        document.documentElement.style.setProperty('--header-padding', '8px 8px');
+        document.documentElement.style.setProperty('--header-padding', '9px 10px');
       } else {
-        // Minimal - smallest icons, compact logo
         setLayoutMode('minimal');
-        document.documentElement.style.setProperty('--header-icon-size', '32px');
-        document.documentElement.style.setProperty('--header-icon-svg', '16px');
-        document.documentElement.style.setProperty('--header-gap', '3px');
-        document.documentElement.style.setProperty('--logo-display', 'none');
-        document.documentElement.style.setProperty('--header-padding', '7px 6px');
+        document.documentElement.style.setProperty('--header-icon-size', '34px');
+        document.documentElement.style.setProperty('--header-icon-svg', '18px');
+        document.documentElement.style.setProperty('--header-gap', '5px');
+        document.documentElement.style.setProperty('--logo-display', 'flex');
+        document.documentElement.style.setProperty('--header-padding', '8px 8px');
       }
     };
 
@@ -164,7 +156,6 @@ export default function Header({ currentTheme, onThemeChange }: HeaderProps) {
     window.addEventListener('resize', intelligentResize);
     window.addEventListener('orientationchange', intelligentResize);
     
-    // Small delay for initial render
     const timer = setTimeout(intelligentResize, 100);
     
     return () => {
