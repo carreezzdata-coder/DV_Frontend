@@ -314,8 +314,7 @@ const RetrievePosts: React.FC = () => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ 
-          author_id: user?.admin_id,
-          hard_delete: false
+          author_id: user?.admin_id
         })
       });
 
@@ -589,9 +588,9 @@ const RetrievePosts: React.FC = () => {
               <button className="close-btn" onClick={() => setShowDeleteModal(false)}>×</button>
             </div>
             <div className="modal-body">
-              <p>Are you sure you want to archive this post?</p>
+              <p>Are you sure you want to permanently delete this post?</p>
               <div className="warning-message">
-                The post will be moved to archived status.
+                This action cannot be undone. The post and all its images will be permanently removed.
               </div>
             </div>
             <div className="modal-actions">
@@ -620,7 +619,7 @@ const RetrievePosts: React.FC = () => {
               </p>
               {bulkAction === 'delete' && (
                 <div className="warning-message">
-                  Posts will be archived.
+                  Posts will be permanently deleted. This cannot be undone.
                 </div>
               )}
             </div>
