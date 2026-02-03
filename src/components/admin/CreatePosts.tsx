@@ -149,12 +149,9 @@ const CreatePosts: React.FC<CreatePostsProps> = ({
     setCategoriesError(null);
 
     try {
-      console.log('[Frontend CreatePosts] Fetching categories...');
+      console.log('[Frontend CreatePosts] Fetching categories from /api/admin/categories');
       
-      // CORRECTED: Use query parameter to specify we want categories
-      // Route: frontend/src/app/api/admin/createposts/route.ts
-      // Backend: backend/routes/admin/createposts/categories.js (via /api/admin/categories)
-      const response = await fetch('/api/admin/createposts?endpoint=categories', {
+      const response = await fetch('/api/admin/categories', {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -168,7 +165,7 @@ const CreatePosts: React.FC<CreatePostsProps> = ({
       if (!response.ok) {
         const errorText = await response.text();
         console.error('[Frontend CreatePosts] Error response:', errorText);
-        throw new Error(`Failed to fetch categories: ${response.statusText}`);
+        throw new Error(`Failed to fetch categories: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
@@ -206,7 +203,7 @@ const CreatePosts: React.FC<CreatePostsProps> = ({
         }
       });
 
-      console.log('[Frontend CreatePosts] Processed groups:', groupsArray.length, 'categories:', categoriesFlat.length);
+      console.log('[Frontend CreatePosts] Processed:', groupsArray.length, 'groups,', categoriesFlat.length, 'categories');
       setCategoryGroups(groupsArray);
       setAllCategories(categoriesFlat);
     } catch (error) {
@@ -324,9 +321,8 @@ const CreatePosts: React.FC<CreatePostsProps> = ({
         });
       }
 
-      // POST to the same route (no query parameter needed for POST)
-      // Route: frontend/src/app/api/admin/createposts/route.ts
-      // Backend: backend/routes/admin/createposts/createposts.js (via /api/admin/createposts)
+      console.log('[Frontend CreatePosts] Submitting to /api/admin/createposts');
+
       const response = await fetch('/api/admin/createposts', {
         method: 'POST',
         headers: {
@@ -339,6 +335,7 @@ const CreatePosts: React.FC<CreatePostsProps> = ({
       const contentType = response.headers.get('content-type');
       if (!contentType || !contentType.includes('application/json')) {
         const text = await response.text();
+        console.error('[Frontend CreatePosts] Non-JSON response:', text);
         throw new Error(`Server returned non-JSON response: ${text.substring(0, 100)}`);
       }
 
@@ -378,13 +375,13 @@ const CreatePosts: React.FC<CreatePostsProps> = ({
         });
         
         setTimeout(() => {
-          window.location.href = '/admin/retrieveposts';
+          window.location.href = '/admin/posts';
         }, 2000);
       } else {
         throw new Error(result.message || 'Failed to create news');
       }
     } catch (error) {
-      console.error('[Submit] Error:', error);
+      console.error('[Frontend CreatePosts] Submit error:', error);
       setMessage({
         type: 'error',
         text: error instanceof Error ? error.message : 'Network error occurred'
