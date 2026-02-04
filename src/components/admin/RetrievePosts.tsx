@@ -590,7 +590,7 @@ const RetrievePosts: React.FC = () => {
             <div className="modal-body">
               <p>Are you sure you want to permanently delete this post?</p>
               <div className="warning-message">
-                This action cannot be undone. The post and all its images will be permanently removed.
+                This action cannot be undone. The post will be permanently removed from the database.
               </div>
             </div>
             <div className="modal-actions">
@@ -598,7 +598,7 @@ const RetrievePosts: React.FC = () => {
                 Cancel
               </button>
               <button className="confirm-delete-btn" onClick={confirmDelete}>
-                Archive Post
+                Delete Post
               </button>
             </div>
           </div>
