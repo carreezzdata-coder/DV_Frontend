@@ -126,11 +126,20 @@ const CategoryBlock = memo<CategoryBlockProps>(({ section, onArticleClick, prior
     return [...section.articles].sort((a, b) => b.views - a.views);
   }, [section.articles]);
 
-  const articlesCount = priority === 'high' ? 12 : priority === 'medium' ? 8 : 6;
+  const articlesCount = priority === 'high' ? 20 : priority === 'medium' ? 12 : 8;
   const displayArticles = sortedArticles.slice(0, articlesCount);
 
   const getLayout = () => {
     if (priority === 'high') {
+      return {
+        large: displayArticles.slice(0, 2),
+        medium: displayArticles.slice(2, 6),
+        small: displayArticles.slice(6, 12),
+        thumbnails: displayArticles.slice(12, 20)
+      };
+    }
+    
+    if (priority === 'medium') {
       return {
         large: displayArticles.slice(0, 1),
         medium: displayArticles.slice(1, 4),
@@ -139,20 +148,11 @@ const CategoryBlock = memo<CategoryBlockProps>(({ section, onArticleClick, prior
       };
     }
     
-    if (priority === 'medium') {
-      return {
-        large: [],
-        medium: displayArticles.slice(0, 2),
-        small: displayArticles.slice(2, 5),
-        thumbnails: displayArticles.slice(5, 8)
-      };
-    }
-    
     return {
       large: [],
-      medium: [],
-      small: displayArticles.slice(0, 3),
-      thumbnails: displayArticles.slice(3, 6)
+      medium: displayArticles.slice(0, 2),
+      small: displayArticles.slice(2, 5),
+      thumbnails: displayArticles.slice(5, 8)
     };
   };
 
@@ -262,7 +262,13 @@ export default function HomeCategories({ sections, onArticleClick, userPreferenc
       let priority: 'high' | 'medium' | 'low' = 'low';
       let score = section.order_index * 100;
 
-      if (prefIndex === 0) {
+      if (section.slug === 'national' || section.slug === 'breaking') {
+        priority = 'high';
+        score = section.slug === 'national' ? -2000 : -1900;
+      } else if (section.slug === 'politics') {
+        priority = 'high';
+        score = -1800;
+      } else if (prefIndex === 0) {
         priority = 'high';
         score = -1000;
       } else if (prefIndex > 0 && prefIndex < 3) {
