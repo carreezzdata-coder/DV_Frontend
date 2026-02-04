@@ -1,9 +1,7 @@
-// src/components/client/hooks/useUserPreferences.tsx
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 
-// Types export
 export interface CategoryVisit {
   slug: string;
   count: number;
@@ -55,12 +53,10 @@ export function useUserPreferences() {
   const [isLoading, setIsLoading] = useState(true);
   const [isHydrated, setIsHydrated] = useState(false);
 
-  // FIXED: Mark hydration complete
   useEffect(() => {
     setIsHydrated(true);
   }, []);
 
-  // FIXED: Safe localStorage access - only after hydration
   const loadFromStorage = useCallback((key: string, fallback: any = null) => {
     if (!isHydrated || typeof window === 'undefined') return fallback;
     
@@ -73,7 +69,6 @@ export function useUserPreferences() {
     }
   }, [isHydrated]);
 
-  // FIXED: Safe localStorage save
   const saveToStorage = useCallback((key: string, value: any) => {
     if (!isHydrated || typeof window === 'undefined') return;
     
@@ -84,7 +79,6 @@ export function useUserPreferences() {
     }
   }, [isHydrated]);
 
-  // FIXED: Only load data after hydration
   useEffect(() => {
     if (!isHydrated) return;
 
@@ -92,22 +86,17 @@ export function useUserPreferences() {
       try {
         setIsLoading(true);
 
-        // Load cookie consent
         const consent = loadFromStorage(COOKIE_CONSENT_KEY) === 'true';
         setCookieConsent(consent);
 
-        // Load preferences
         const storedPrefs = loadFromStorage(PREFERENCES_KEY, DEFAULT_PREFS);
         setPreferences(storedPrefs);
 
-        // Load geo location
         const storedGeo = loadFromStorage(GEO_KEY, { county: null, town: null });
         
-        // Handle nested location object
         const geoData = storedGeo?.location || storedGeo;
         setGeoLocation(geoData);
 
-        // Detect geo if not already stored
         if (!geoData.county && !geoData.town) {
           detectGeoLocation();
         }
@@ -163,7 +152,6 @@ export function useUserPreferences() {
         ];
       }
 
-      // Sort by count and keep top 20
       newVisitHistory.sort((a, b) => b.count - a.count);
       if (newVisitHistory.length > 20) {
         newVisitHistory = newVisitHistory.slice(0, 20);
@@ -224,12 +212,10 @@ export function useUserPreferences() {
 
     const baseOrder = ['breaking'];
     
-    // Add user's top category first
     if (contentType !== 'mixed' && contentType !== 'breaking') {
       baseOrder.push(contentType);
     }
 
-    // Add remaining favorites
     const remaining = favoriteCategories.filter(c => !baseOrder.includes(c));
     
     return [...baseOrder, ...remaining].slice(0, 6);
