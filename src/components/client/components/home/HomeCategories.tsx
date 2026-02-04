@@ -262,12 +262,15 @@ export default function HomeCategories({ sections, onArticleClick, userPreferenc
       let priority: 'high' | 'medium' | 'low' = 'low';
       let score = section.order_index * 100;
 
-      if (section.slug === 'national' || section.slug === 'breaking') {
+      if (section.slug === 'national') {
         priority = 'high';
-        score = section.slug === 'national' ? -2000 : -1900;
+        score = -3000;
       } else if (section.slug === 'politics') {
         priority = 'high';
-        score = -1800;
+        score = -2900;
+      } else if (section.slug === 'breaking') {
+        priority = 'high';
+        score = -2800;
       } else if (prefIndex === 0) {
         priority = 'high';
         score = -1000;
