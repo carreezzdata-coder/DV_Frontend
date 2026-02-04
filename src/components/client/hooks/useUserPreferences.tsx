@@ -206,19 +206,15 @@ export function useUserPreferences() {
   const getPrioritizedCategories = useCallback((): string[] => {
     const { favoriteCategories, contentType } = preferences;
 
-    if (favoriteCategories.length === 0) {
-      return ['breaking', 'politics', 'business', 'sports', 'tech', 'entertainment'];
-    }
-
-    const baseOrder = ['breaking'];
+    const baseOrder = ['breaking', 'politics'];
     
-    if (contentType !== 'mixed' && contentType !== 'breaking') {
+    if (contentType !== 'mixed' && contentType !== 'breaking' && contentType !== 'politics') {
       baseOrder.push(contentType);
     }
 
     const remaining = favoriteCategories.filter(c => !baseOrder.includes(c));
     
-    return [...baseOrder, ...remaining].slice(0, 6);
+    return [...baseOrder, ...remaining].slice(0, 8);
   }, [preferences]);
 
   const resetPreferences = useCallback(() => {
