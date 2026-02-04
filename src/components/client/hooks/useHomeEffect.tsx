@@ -71,7 +71,13 @@ export function useHomeEffect(
     let priority: 'high' | 'medium' | 'low' = 'low';
     let score = section.order_index * 100;
 
-    if (prefIndex === 0) {
+    if (section.slug === 'national' || section.slug === 'breaking') {
+      priority = 'high';
+      score = section.slug === 'national' ? -2000 : -1900;
+    } else if (section.slug === 'politics') {
+      priority = 'high';
+      score = -1800;
+    } else if (prefIndex === 0) {
       priority = 'high';
       score = -1000;
     } else if (prefIndex > 0 && prefIndex < 3) {
