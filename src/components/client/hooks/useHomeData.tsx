@@ -191,12 +191,21 @@ export function useHomeData(initialData?: any): UseHomeDataReturn {
       setError(null);
 
       if (isPersonalized && isHydrated) {
+        const categoryVisits: Record<string, number> = {};
+        if (userBehavior.categoryVisits) {
+          Object.assign(categoryVisits, userBehavior.categoryVisits);
+        }
+        
+        userPrefs.visitHistory.forEach(visit => {
+          categoryVisits[visit.slug] = (categoryVisits[visit.slug] || 0) + visit.count;
+        });
+
         const payload = {
           personalized: true,
           preferences: {
-            preferredCategories: userBehavior.preferredCategories || userPrefs.favoriteCategories || [],
-            categoryVisits: userBehavior.categoryVisits || {},
-            totalVisits: userBehavior.totalVisits || 0
+            preferredCategories: userPrefs.favoriteCategories || userBehavior.preferredCategories || [],
+            categoryVisits: categoryVisits,
+            totalVisits: userPrefs.totalVisits || userBehavior.totalVisits || 0
           },
           location: {
             county: geoLocation.county,
