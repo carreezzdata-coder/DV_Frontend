@@ -22,21 +22,13 @@ export function usePersonalizedContent() {
   const [error, setError] = useState<string | null>(null);
 
   const buildPersonalizationPayload = useCallback(() => {
-    if (!cookieConsent || !isHydrated) {
-      return {
-        personalized: false,
-        preferences: { preferredCategories: [] },
-        location: { county: null, town: null }
-      };
-    }
-
     const categoryVisits: Record<string, number> = {};
     preferences.visitHistory.forEach(visit => {
       categoryVisits[visit.slug] = visit.count;
     });
 
     return {
-      personalized: true,
+      personalized: cookieConsent && isHydrated,
       preferences: {
         preferredCategories: preferences.favoriteCategories,
         categoryVisits,
@@ -76,9 +68,9 @@ export function usePersonalizedContent() {
       
       if (data.success) {
         setContent({
-          featured: data.featured || [],
+          featured: data.featured || data.featuredNews || [],
           timeline: data.timeline || [],
-          slider: data.slider || [],
+          slider: data.slider || data.sliderSlides || [],
           categorySections: data.categorySections || []
         });
       } else {
@@ -141,7 +133,7 @@ export function usePersonalizedSlider() {
       const data = await response.json();
       
       if (data.success) {
-        setSlides(data.slides || []);
+        setSlides(data.slides || data.sliderSlides || []);
       } else {
         throw new Error(data.message || 'Failed to fetch slides');
       }
