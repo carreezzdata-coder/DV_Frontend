@@ -59,7 +59,8 @@ export async function GET(request: NextRequest) {
     console.log(`[${requestId}] Featured request: page=${page}, limit=${limit}`);
 
     const backendUrl = getBackendUrl();
-    const endpoint = `${backendUrl}/api/updates/featured?page=${page}&limit=${limit}`;
+    // UPDATED: Call /api/client/featured instead of /api/updates/featured
+    const endpoint = `${backendUrl}/api/client/featured?page=${page}&limit=${limit}`;
 
     console.log(`[${requestId}] Fetching: ${endpoint}`);
 
