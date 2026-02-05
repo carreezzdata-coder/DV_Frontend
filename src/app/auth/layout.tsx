@@ -5,5 +5,5 @@ export default function AuthLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="auth-section">{children}</div>;
+  return <div className="dvlogin-reset">{children}</div>;
 }
