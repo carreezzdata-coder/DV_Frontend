@@ -1,341 +1,395 @@
-* {
+.dvlogin-reset * {
   box-sizing: border-box;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
   margin: 0;
   padding: 0;
 }
 
-.login-container {
+.dvlogin-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
-  padding: 20px;
-  position: relative;
-}
-
-.login-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-  opacity: 0.3;
-}
-
-.login-wrapper {
-  width: 100%;
-  max-width: 400px;
-  position: relative;
-  z-index: 1;
-}
-
-.login-form-panel {
-  background: rgba(45, 55, 72, 0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
-  padding: 40px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+  padding: 24px;
   position: relative;
   overflow: hidden;
 }
 
-.login-form-panel::before {
+.dvlogin-container::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.1) 0%, transparent 70%);
+  animation: dvlogin-pulse 15s ease-in-out infinite;
+}
+
+@keyframes dvlogin-pulse {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(10%, 10%) scale(1.1); }
+}
+
+.dvlogin-wrapper {
+  width: 100%;
+  max-width: 440px;
+  position: relative;
+  z-index: 10;
+}
+
+.dvlogin-panel {
+  background: rgba(30, 41, 59, 0.98);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(56, 189, 248, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  padding: 48px 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.dvlogin-panel::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #99f6e4, #4ade80);
+  height: 4px;
+  background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
+  border-radius: 24px 24px 0 0;
 }
 
-.form-header {
+.dvlogin-header {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 36px;
 }
 
-.form-logo {
-  width: 64px;
-  height: 64px;
-  background: linear-gradient(135deg, #99f6e4, #4ade80);
-  border-radius: 16px;
+.dvlogin-logo {
+  width: 72px;
+  height: 72px;
+  background: linear-gradient(135deg, #38bdf8, #818cf8);
+  border-radius: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 20px;
-  box-shadow: 0 8px 16px rgba(153, 246, 228, 0.3);
+  margin: 0 auto 24px;
+  box-shadow: 0 12px 24px rgba(56, 189, 248, 0.4);
+  transform: rotate(-5deg);
+  transition: transform 0.3s ease;
 }
 
-.form-logo-icon {
-  font-size: 28px;
-  color: #1a202c;
+.dvlogin-logo:hover {
+  transform: rotate(0deg) scale(1.05);
 }
 
-.form-title {
-  font-size: 28px;
-  font-weight: 600;
-  color: #f7fafc;
-  margin: 0 0 8px 0;
-  line-height: 1.2;
+.dvlogin-logo-icon {
+  font-size: 36px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
-.form-subtitle {
-  color: #a0aec0;
-  margin: 0;
-  font-size: 15px;
+.dvlogin-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #f8fafc;
+  margin: 0 0 12px 0;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 10px rgba(56, 189, 248, 0.3);
+}
+
+.dvlogin-subtitle {
+  color: #94a3b8;
+  font-size: 16px;
   font-weight: 400;
+  margin: 0;
 }
 
-.error-message {
-  background: rgba(252, 129, 129, 0.2);
-  border: 1px solid #e53e3e;
-  border-radius: 12px;
-  padding: 16px;
-  margin-bottom: 24px;
+.dvlogin-error-alert {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  border-radius: 16px;
+  padding: 18px 20px;
+  margin-bottom: 28px;
   display: flex;
-  align-items: center;
-  gap: 12px;
-  color: #feb2b2;
+  align-items: flex-start;
+  gap: 14px;
+  animation: dvlogin-shake 0.5s ease;
+}
+
+@keyframes dvlogin-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+.dvlogin-error-icon {
+  flex-shrink: 0;
+  font-size: 20px;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.dvlogin-error-text {
+  color: #fca5a5;
   font-size: 14px;
   font-weight: 500;
+  line-height: 1.5;
+  margin: 0;
 }
 
-.error-icon {
-  flex-shrink: 0;
-  font-size: 18px;
-  color: #feb2b2;
+.dvlogin-field {
+  margin-bottom: 26px;
 }
 
-.form-group {
-  margin-bottom: 24px;
-}
-
-.form-label {
-  display: block;
-  color: #e2e8f0;
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  line-height: 1.4;
+.dvlogin-label {
   display: flex;
   align-items: center;
-  gap: 8px;
-}
-
-.label-icon {
-  font-size: 16px;
-  color: #99f6e4;
-}
-
-.form-input {
-  width: 100%;
-  padding: 16px 20px;
-  border: 2px solid #4a5568;
-  border-radius: 12px;
+  gap: 10px;
+  color: #e2e8f0;
   font-size: 15px;
-  background: #2d3748;
-  color: #f7fafc;
-  box-sizing: border-box;
-  transition: all 0.3s ease;
-  font-family: inherit;
+  font-weight: 600;
+  margin-bottom: 10px;
+  letter-spacing: 0.3px;
 }
 
-.form-input:focus {
-  outline: none;
-  border-color: #99f6e4;
-  box-shadow: 0 0 0 3px rgba(153, 246, 228, 0.1);
-  transform: translateY(-1px);
+.dvlogin-label-icon {
+  font-size: 18px;
+  color: #38bdf8;
 }
 
-.form-input:disabled {
-  background: #1a202c;
-  color: #718096;
-  cursor: not-allowed;
-}
-
-.form-input.error {
-  border-color: #e53e3e;
-  background: rgba(252, 129, 129, 0.1);
-  color: #feb2b2;
-}
-
-.password-input-container {
+.dvlogin-input-wrapper {
   position: relative;
 }
 
-.password-toggle {
+.dvlogin-input {
+  width: 100%;
+  padding: 18px 22px !important;
+  border: 2px solid #475569 !important;
+  border-radius: 14px !important;
+  font-size: 16px !important;
+  background: #1e293b !important;
+  color: #f8fafc !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  outline: none !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dvlogin-input::placeholder {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+.dvlogin-input:focus {
+  border-color: #38bdf8 !important;
+  background: #0f172a !important;
+  box-shadow: 
+    0 0 0 4px rgba(56, 189, 248, 0.15) !important,
+    inset 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+  transform: translateY(-2px);
+}
+
+.dvlogin-input:disabled {
+  background: #0f172a !important;
+  color: #475569 !important;
+  cursor: not-allowed !important;
+  opacity: 0.6;
+}
+
+.dvlogin-input-error {
+  border-color: #ef4444 !important;
+  background: rgba(239, 68, 68, 0.1) !important;
+}
+
+.dvlogin-input-error:focus {
+  border-color: #ef4444 !important;
+  box-shadow: 
+    0 0 0 4px rgba(239, 68, 68, 0.2) !important,
+    inset 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+.dvlogin-password-toggle {
   position: absolute;
-  right: 16px;
+  right: 18px;
   top: 50%;
   transform: translateY(-50%);
-  background: none;
+  background: rgba(56, 189, 248, 0.1);
   border: none;
-  color: #a0aec0;
+  color: #94a3b8;
   cursor: pointer;
-  padding: 8px;
-  font-size: 18px;
-  transition: all 0.3s ease;
-  border-radius: 8px;
+  padding: 10px;
+  font-size: 20px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.password-toggle:hover {
-  color: #99f6e4;
-  background: rgba(153, 246, 228, 0.1);
+.dvlogin-password-toggle:hover:not(:disabled) {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.2);
+  transform: translateY(-50%) scale(1.1);
 }
 
-.field-error {
+.dvlogin-password-toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.dvlogin-field-error {
   display: block;
-  color: #e53e3e;
+  color: #f87171;
   font-size: 13px;
-  margin-top: 8px;
-  line-height: 1.4;
+  margin-top: 10px;
   font-weight: 500;
+  line-height: 1.4;
 }
 
-.login-button {
+.dvlogin-submit {
   width: 100%;
-  background: linear-gradient(135deg, #99f6e4 0%, #4ade80 100%);
-  color: #1a202c;
+  background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+  color: #0f172a;
   border: none;
-  border-radius: 12px;
-  padding: 16px 24px;
-  font-size: 15px;
-  font-weight: 600;
+  border-radius: 14px;
+  padding: 18px 28px;
+  font-size: 16px;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
-  box-shadow: 0 4px 12px rgba(153, 246, 228, 0.4);
-  font-family: inherit;
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.5);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  margin-top: 32px;
+  letter-spacing: 0.5px;
 }
 
-.login-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(153, 246, 228, 0.5);
+.dvlogin-submit:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(56, 189, 248, 0.6);
+  background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
 }
 
-.login-button:active:not(:disabled) {
-  transform: translateY(0);
+.dvlogin-submit:active:not(:disabled) {
+  transform: translateY(-1px);
 }
 
-.login-button:disabled {
-  background: linear-gradient(135deg, #4a5568, #2d3748);
-  color: #a0aec0;
+.dvlogin-submit:disabled {
+  background: linear-gradient(135deg, #475569, #334155);
+  color: #64748b;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
+  opacity: 0.6;
 }
 
-.login-button-icon {
-  font-size: 18px;
+.dvlogin-submit-icon {
+  font-size: 20px;
 }
 
-.loading-state {
+.dvlogin-loading {
   text-align: center;
-  padding: 40px 20px;
+  padding: 48px 24px;
+  color: #e2e8f0;
 }
 
-.loading-spinner {
+.dvlogin-spinner {
   display: inline-block;
-  animation: spin 2s linear infinite;
-  margin-bottom: 16px;
-  font-size: 32px;
+  animation: dvlogin-spin 2s linear infinite;
+  margin-bottom: 20px;
+  font-size: 40px;
+  filter: drop-shadow(0 4px 8px rgba(56, 189, 248, 0.5));
 }
 
-@keyframes spin {
+@keyframes dvlogin-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
 
-.form-footer {
-  margin-top: 32px;
-  text-align: center;
-  padding-top: 24px;
-  border-top: 1px solid #4a5568;
+.dvlogin-loading-text {
+  font-size: 16px;
+  color: #94a3b8;
+  margin: 0;
 }
 
-.request-access-button {
+.dvlogin-footer {
+  margin-top: 36px;
+  text-align: center;
+  padding-top: 28px;
+  border-top: 1px solid rgba(71, 85, 105, 0.5);
+}
+
+.dvlogin-request-btn {
   background: transparent;
-  color: #a0aec0;
-  border: 2px solid #4a5568;
-  border-radius: 12px;
-  padding: 12px 20px;
+  color: #64748b;
+  border: 2px solid #475569;
+  border-radius: 14px;
+  padding: 14px 24px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: not-allowed;
-  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
-  font-family: inherit;
-  opacity: 0.6;
-}
-
-.admin-container {
-  min-height: 100vh;
-  background: #1a202c;
-}
-
-.admin-main-content {
-  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  opacity: 0.5;
+  transition: all 0.3s ease;
 }
 
 @media (max-width: 768px) {
-  .login-container {
-    padding: 16px;
+  .dvlogin-container {
+    padding: 20px;
   }
   
-  .login-form-panel {
-    padding: 32px 24px;
-    border-radius: 12px;
+  .dvlogin-panel {
+    padding: 40px 32px;
+    border-radius: 20px;
   }
   
-  .form-title {
-    font-size: 24px;
+  .dvlogin-title {
+    font-size: 28px;
   }
   
-  .form-logo {
-    width: 56px;
-    height: 56px;
+  .dvlogin-logo {
+    width: 64px;
+    height: 64px;
   }
   
-  .form-logo-icon {
-    font-size: 24px;
+  .dvlogin-logo-icon {
+    font-size: 32px;
   }
 }
 
 @media (max-width: 480px) {
-  .login-form-panel {
-    padding: 24px 20px;
-    border-radius: 8px;
-    margin: 0 8px;
+  .dvlogin-panel {
+    padding: 32px 24px;
+    border-radius: 16px;
   }
   
-  .login-container {
-    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+  .dvlogin-container {
+    padding: 16px;
     align-items: flex-start;
-    padding-top: 60px;
+    padding-top: 40px;
   }
   
-  .form-input {
-    padding: 14px 16px;
+  .dvlogin-input {
+    padding: 16px 20px !important;
+    font-size: 16px !important;
+  }
+  
+  .dvlogin-submit {
+    padding: 16px 24px;
     font-size: 16px;
   }
   
-  .login-button {
-    padding: 14px 20px;
-    font-size: 16px;
+  .dvlogin-title {
+    font-size: 26px;
   }
 }
