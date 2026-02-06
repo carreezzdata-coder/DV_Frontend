@@ -22,15 +22,58 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({
   disabled = false
 }) => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  
-  // Use the session context - this is the key fix
+  const router = useRouter();
   const { logout: sessionLogout, isAuthenticated, isLoading } = useSession();
+
+  const clearAllStorage = () => {
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      document.cookie.split(";").forEach((c) => {
+        const cookieName = c.split("=")[0].trim();
+        document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+        const domain = window.location.hostname;
+        document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${domain}`;
+        const parts = domain.split('.');
+        if (parts.length > 2) {
+          const parentDomain = parts.slice(-2).join('.');
+          document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${parentDomain}`;
+        }
+      });
+
+      if (window.indexedDB) {
+        window.indexedDB.databases().then(databases => {
+          databases.forEach(db => {
+            if (db.name) {
+              window.indexedDB.deleteDatabase(db.name);
+            }
+          });
+        });
+      }
+
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+          for (const registration of registrations) {
+            registration.unregister();
+          }
+        });
+      }
+
+      if ('caches' in window) {
+        caches.keys().then(cacheNames => {
+          cacheNames.forEach(cacheName => caches.delete(cacheName));
+        });
+      }
+    } catch (error) {
+      console.error('Error clearing storage:', error);
+    }
+  };
 
   const handleLogout = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
-    // Log the state before the check
     console.log('LogoutButton: Current state -> isLoggingOut:', isLoggingOut, 'isLoading:', isLoading, 'isAuthenticated:', isAuthenticated);
     
     if (isLoggingOut || isLoading || !isAuthenticated) {
@@ -43,16 +86,24 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({
     try {
       console.log('LogoutButton: Starting logout process...');
       
-      // Use session context logout - sessionLogout returns void
       await sessionLogout();
+      
+      clearAllStorage();
       
       console.log('LogoutButton: Logout completed successfully.');
       
-      // Call the optional onLogout prop if provided
       onLogout && onLogout();
+
+      const timestamp = new Date().getTime();
+      router.push(`/login?t=${timestamp}`);
+      router.refresh();
     } catch (error) {
       console.error('LogoutButton: An unexpected error occurred during logout.', error);
-      // Display a message or handle the error gracefully
+      
+      clearAllStorage();
+      
+      const timestamp = new Date().getTime();
+      window.location.href = `/login?t=${timestamp}`;
     } finally {
       setIsLoggingOut(false);
     }
@@ -122,7 +173,6 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({
           box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
         }
         
-        /* Header logout button specific styles */
         :global(.header-logout-btn) {
           border-radius: 50% !important;
           width: 36px !important;
@@ -133,7 +183,6 @@ const LogoutButton: React.FC<LogoutButtonProps> = ({
           justify-content: center !important;
         }
         
-        /* Mobile logout button specific styles */
         :global(.mobile-logout-btn) {
           width: 100%;
           margin-top: 20px;
