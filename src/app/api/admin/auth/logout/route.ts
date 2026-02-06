@@ -1,4 +1,3 @@
-// frontend/src/app/api/admin/auth/logout/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getBackendUrl, forwardCookies } from '@/lib/backend-config';
 
@@ -21,6 +20,26 @@ export async function POST(request: NextRequest) {
 
     forwardCookies(response, nextResponse);
 
+    nextResponse.cookies.set({
+      name: 'dailyvaibe_admin_session',
+      value: '',
+      path: '/',
+      maxAge: 0,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+    });
+
+    nextResponse.cookies.set({
+      name: 'connect.sid',
+      value: '',
+      path: '/',
+      maxAge: 0,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+    });
+
     return nextResponse;
   } catch (error) {
     const nextResponse = NextResponse.json({
@@ -32,7 +51,20 @@ export async function POST(request: NextRequest) {
       name: 'dailyvaibe_admin_session',
       value: '',
       path: '/',
-      maxAge: 0
+      maxAge: 0,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+    });
+
+    nextResponse.cookies.set({
+      name: 'connect.sid',
+      value: '',
+      path: '/',
+      maxAge: 0,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
     });
 
     return nextResponse;
