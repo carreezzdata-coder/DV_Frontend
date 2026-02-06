@@ -86,12 +86,12 @@ function LoginForm() {
 
   if (sessionLoading) {
     return (
-      <div className="dvlogin-container">
-        <div className="dvlogin-wrapper">
-          <div className="dvlogin-panel">
-            <div className="dvlogin-loading">
-              <div className="dvlogin-spinner">⚡</div>
-              <p className="dvlogin-loading-text">Checking authentication...</p>
+      <div className="login-container">
+        <div className="login-wrapper">
+          <div className="login-form-panel">
+            <div className="loading-state">
+              <div className="loading-spinner">âš¡</div>
+              <p>Checking authentication...</p>
             </div>
           </div>
         </div>
@@ -104,59 +104,57 @@ function LoginForm() {
   }
 
   return (
-    <div className="dvlogin-container">
-      <div className="dvlogin-wrapper">
-        <div className="dvlogin-panel">
-          <form onSubmit={handleSubmit} noValidate>
-            <div className="dvlogin-header">
-              <div className="dvlogin-logo">
-                <div className="dvlogin-logo-icon">🚀</div>
+    <div className="login-container">
+      <div className="login-wrapper">
+        <div className="login-form-panel">
+          <form className="login-form" onSubmit={handleSubmit} noValidate>
+            <div className="form-header">
+              <div className="form-logo">
+                <div className="form-logo-icon">ðŸš€</div>
               </div>
-              <h1 className="dvlogin-title">Daily Vaibe</h1>
-              <p className="dvlogin-subtitle">Sign in to your dashboard</p>
+              <h1 className="form-title">Daily Vaibe Admin</h1>
+              <p className="form-subtitle">Sign in to your dashboard</p>
             </div>
 
             {error && (
-              <div className="dvlogin-error-alert" role="alert">
-                <span className="dvlogin-error-icon">⚠️</span>
-                <p className="dvlogin-error-text">{error}</p>
+              <div className="error-message" role="alert">
+                <span className="error-icon">âš ï¸</span>
+                <span>{error}</span>
               </div>
             )}
 
-            <div className="dvlogin-field">
-              <label htmlFor="identifier" className="dvlogin-label">
-                <span className="dvlogin-label-icon">👤</span>
+            <div className="form-group">
+              <label htmlFor="identifier" className="form-label">
+                <span className="label-icon">ðŸ‘¤</span>
                 Username or Phone
               </label>
-              <div className="dvlogin-input-wrapper">
-                <input
-                  type="text"
-                  id="identifier"
-                  name="identifier"
-                  value={formData.identifier}
-                  onChange={handleChange}
-                  placeholder="Enter your username or phone number"
-                  required
-                  disabled={isSubmitting}
-                  className={`dvlogin-input ${fieldErrors.identifier ? 'dvlogin-input-error' : ''}`}
-                  autoComplete="username"
-                  autoCapitalize="none"
-                  spellCheck={false}
-                />
-              </div>
+              <input
+                type="text"
+                id="identifier"
+                name="identifier"
+                value={formData.identifier}
+                onChange={handleChange}
+                placeholder="Enter your username or phone number"
+                required
+                disabled={isSubmitting}
+                className={`form-input ${fieldErrors.identifier ? 'error' : ''}`}
+                autoComplete="username"
+                autoCapitalize="none"
+                spellCheck={false}
+              />
               {fieldErrors.identifier && (
-                <span className="dvlogin-field-error" role="alert">
+                <span className="field-error" role="alert">
                   {fieldErrors.identifier as string}
                 </span>
               )}
             </div>
 
-            <div className="dvlogin-field">
-              <label htmlFor="password" className="dvlogin-label">
-                <span className="dvlogin-label-icon">🔒</span>
+            <div className="form-group">
+              <label htmlFor="password" className="form-label">
+                <span className="label-icon">ðŸ”’</span>
                 Password
               </label>
-              <div className="dvlogin-input-wrapper">
+              <div className="password-input-container">
                 <input
                   type={showPassword ? "text" : "password"}
                   id="password"
@@ -166,43 +164,43 @@ function LoginForm() {
                   placeholder="Enter your password"
                   required
                   disabled={isSubmitting}
-                  className={`dvlogin-input ${fieldErrors.password ? 'dvlogin-input-error' : ''}`}
+                  className={`form-input ${fieldErrors.password ? 'error' : ''}`}
                   autoComplete="current-password"
                 />
                 <button
                   type="button"
-                  className="dvlogin-password-toggle"
+                  className="password-toggle"
                   onClick={() => setShowPassword(!showPassword)}
                   disabled={isSubmitting}
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
-                  {showPassword ? '🙈' : '👁️'}
+                  {showPassword ? 'ðŸ™ˆ' : 'ðŸ‘ï¸'}
                 </button>
               </div>
               {fieldErrors.password && (
-                <span className="dvlogin-field-error" role="alert">
+                <span className="field-error" role="alert">
                   {fieldErrors.password as string}
                 </span>
               )}
             </div>
 
-            <button type="submit" className="dvlogin-submit" disabled={isSubmitting}>
+            <button type="submit" className="login-button" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
-                  <span className="dvlogin-spinner">⚡</span>
+                  <span className="loading-spinner">âš¡</span>
                   <span>Signing In...</span>
                 </>
               ) : (
                 <>
-                  <span className="dvlogin-submit-icon">🔓</span>
+                  <span className="login-button-icon">ðŸ”</span>
                   <span>Sign In</span>
                 </>
               )}
             </button>
 
-            <div className="dvlogin-footer">
-              <button type="button" className="dvlogin-request-btn" disabled>
-                <span>🔒</span>
+            <div className="form-footer">
+              <button type="button" className="request-access-button" disabled>
+                <span>ðŸ“</span>
                 <span>Request Access</span>
               </button>
             </div>
