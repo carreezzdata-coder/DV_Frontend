@@ -251,7 +251,7 @@ export default function Footer() {
       <FooterMobileOverlay
         isOpen={mobileMenuOpen}
         onClose={handleMobileMenuClose}
-        groups={groups}
+        groups={Object.values(groups)}
         marqueeArticles={[...topArticles, ...bottomArticles]}
         trackBehavior={trackBehavior}
         trackCategoryVisit={trackCategoryVisit}
