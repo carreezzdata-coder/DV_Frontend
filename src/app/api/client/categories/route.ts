@@ -1,90 +1,134 @@
-// frontend/src/app/api/client/categories/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
-import { getBackendUrl, forwardCookies, buildHeadersFromRequest } from '@/lib/backend-config';
+
+const BACKEND_URL = process.env.NODE_ENV === 'development' 
+  ? 'http://localhost:5000'
+  : 'https://api.vybeztribe.com';
+
+const GROUP_ORDER = [
+  'world',
+  'counties',
+  'politics',
+  'business',
+  'sports',
+  'entertainment',
+  'tech',
+  'health',
+  'education',
+  'crime-security',
+  'opinion',
+  'lifestyle',
+  'other'
+];
 
 export async function GET(request: NextRequest) {
-  console.log('=== CATEGORIES ROUTE DEBUG START ===');
-  console.log('Full URL:', request.url);
-  
   try {
-    const { searchParams } = new URL(request.url);
-    const slug = searchParams.get('slug');
-    const page = searchParams.get('page') || '1';
-    const limit = searchParams.get('limit') || '20';
+    console.log('🔄 Footer Categories API: Fetching from backend...');
+
+    const headers = new Headers({
+      'Content-Type': 'application/json',
+    });
     
-    console.log('Extracted params:', { slug, page, limit });
-    console.log('Backend base URL:', getBackendUrl());
-    
-    if (!slug) {
-      console.log('ERROR: No slug provided');
-      return NextResponse.json({
-        success: false,
-        message: 'Category slug is required'
-      }, { status: 400 });
+    if (request.headers.has('cookie')) {
+      headers.set('Cookie', request.headers.get('cookie')!);
     }
 
-    const backendUrl = `${getBackendUrl()}/api/news/category/${encodeURIComponent(slug)}?page=${page}&limit=${limit}`;
-    console.log('Calling backend URL:', backendUrl);
-
-    const headers = buildHeadersFromRequest(request);
-    console.log('Request headers:', Object.fromEntries(new Headers(headers).entries()));
-
-    const response = await fetch(backendUrl, {
-      method: 'GET',
-      headers: headers,
-      credentials: 'include',
+    const slugsResponse = await fetch(`${BACKEND_URL}/api/category-groups/slugs`, {
+      headers,
       cache: 'no-store'
     });
 
-    console.log('Backend response status:', response.status);
-    console.log('Backend response headers:', Object.fromEntries(response.headers.entries()));
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.log('Backend error response body:', errorText);
-      
-      if (response.status === 404) {
-        return NextResponse.json({
-          success: false,
-          message: `Category '${slug}' not found`,
-          news: [],
-          pagination: {
-            current_page: 1,
-            per_page: parseInt(limit),
-            total_news: 0,
-            total_pages: 0,
-            has_next: false,
-            has_prev: false
-          }
-        }, { status: 404 });
-      }
-      
-      return NextResponse.json({
-        success: false,
-        message: `Backend error: ${response.status}`,
-        error: errorText
-      }, { status: response.status });
+    if (!slugsResponse.ok) {
+      console.error('❌ Failed to fetch group slugs:', slugsResponse.status);
+      return NextResponse.json(
+        { success: false, message: 'Failed to fetch category groups', groups: {} },
+        { status: 500 }
+      );
     }
 
-    const data = await response.json();
-    console.log('Backend response data keys:', Object.keys(data));
-    console.log('News count:', data.news?.length || 0);
-    console.log('=== CATEGORIES ROUTE DEBUG END ===');
+    const slugsData = await slugsResponse.json();
     
-    const nextResponse = NextResponse.json(data);
-    forwardCookies(response, nextResponse);
-    return nextResponse;
+    if (!slugsData.success || !slugsData.slugs) {
+      console.error('❌ Invalid slugs data');
+      return NextResponse.json(
+        { success: false, message: 'Invalid slugs data', groups: {} },
+        { status: 500 }
+      );
+    }
+
+    console.log('✅ Available slugs:', slugsData.slugs);
+
+    const groupPromises = slugsData.slugs.map(async (slug: string) => {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/category-groups/${slug}`, {
+          headers,
+          cache: 'no-store'
+        });
+
+        if (!response.ok) {
+          console.warn(`⚠️ Failed to fetch group ${slug}:`, response.status);
+          return null;
+        }
+
+        const data = await response.json();
+
+        if (!data.success || !data.group) {
+          console.warn(`⚠️ Invalid data for group ${slug}`);
+          return null;
+        }
+
+        return {
+          slug: data.group.slug,
+          data: {
+            title: data.group.name,
+            icon: data.group.icon,
+            description: data.group.description,
+            mainSlug: data.group.slug,
+            slug: data.group.slug,
+            color: data.group.color,
+            order: GROUP_ORDER.indexOf(data.group.slug),
+            categories: data.group.categories.map((cat: any) => ({
+              category_id: cat.category_id,
+              name: cat.name,
+              slug: cat.slug,
+              parent_id: cat.parent_id,
+              description: cat.description,
+              color: cat.color,
+              icon: cat.icon
+            }))
+          }
+        };
+      } catch (error) {
+        console.error(`❌ Error fetching group ${slug}:`, error);
+        return null;
+      }
+    });
+
+    const groupResults = await Promise.all(groupPromises);
+    const validGroups = groupResults.filter((g): g is { slug: string; data: any } => g !== null);
+
+    const groupsObject: Record<string, any> = {};
+    validGroups.forEach(({ slug, data }) => {
+      groupsObject[slug] = data;
+    });
+
+    console.log(`✅ Footer categories: ${Object.keys(groupsObject).length} groups returned`);
+    console.log('Groups:', Object.keys(groupsObject).join(', '));
+
+    return NextResponse.json({
+      success: true,
+      groups: groupsObject,
+      total_groups: Object.keys(groupsObject).length
+    });
 
   } catch (error) {
-    console.error('=== CATEGORIES ROUTE ERROR ===');
-    console.error('Error:', error);
-    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack');
-    
-    return NextResponse.json({
-      success: false,
-      message: 'Internal server error',
-      error: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 });
+    console.error('❌ Fatal error in footer-categories API:', error);
+    return NextResponse.json(
+      { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Unknown error',
+        groups: {} 
+      },
+      { status: 500 }
+    );
   }
 }
