@@ -245,10 +245,10 @@
   }
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1199px) and (min-width: 769px) {
   .footer-mega-grid {
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(4, auto);
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(3, auto);
     gap: 2px;
     padding: 10px 2px;
   }
@@ -256,10 +256,46 @@
   .footer-section {
     border-right: 1px solid var(--border-color);
     border-bottom: 1px solid var(--border-color);
-    min-height: 140px;
+    min-height: 150px;
   }
   
   .footer-section:nth-child(6n) {
+    border-right: 1px solid var(--border-color);
+  }
+  
+  .footer-section:nth-child(4n) {
+    border-right: none;
+  }
+  
+  .footer-section:nth-last-child(-n+6) {
+    border-bottom: 1px solid var(--border-color);
+  }
+  
+  .footer-section:nth-last-child(-n+4) {
+    border-bottom: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .footer-mega-grid {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(4, auto);
+    gap: 2px;
+    padding: 8px 2px;
+  }
+  
+  .footer-section {
+    border-right: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    min-height: 140px;
+    padding: 6px 4px;
+  }
+  
+  .footer-section:nth-child(6n) {
+    border-right: 1px solid var(--border-color);
+  }
+  
+  .footer-section:nth-child(4n) {
     border-right: 1px solid var(--border-color);
   }
   
@@ -271,12 +307,32 @@
     border-bottom: 1px solid var(--border-color);
   }
   
+  .footer-section:nth-last-child(-n+4) {
+    border-bottom: 1px solid var(--border-color);
+  }
+  
   .footer-section:nth-last-child(-n+3) {
     border-bottom: none;
   }
+  
+  .footer-section-title {
+    font-size: 0.78rem;
+  }
+  
+  .footer-link-item {
+    font-size: 0.7rem;
+    padding: 3px 3px 3px 8px;
+    min-height: 22px;
+  }
+  
+  .footer-icon {
+    font-size: 1rem;
+    width: 18px;
+    height: 18px;
+  }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 480px) {
   .footer-categories-section {
     display: none;
   }
@@ -430,7 +486,7 @@
   transform: translateX(4px);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 769px) {
   .footer-bottom-main {
     grid-template-columns: auto 1fr auto;
     gap: 2rem;
@@ -455,7 +511,7 @@
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 480px) {
   .footer-bottom-section {
     display: none;
   }
