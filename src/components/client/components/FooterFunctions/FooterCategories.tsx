@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getCategoryIcon, isGroupCategory } from '@/lib/clientData';
@@ -12,31 +12,22 @@ interface Category {
 interface CategoryGroup {
   title: string;
   icon: string;
-  mainSlug: string | null;
+  mainSlug: string;
+  slug: string;
+  color: string;
+  order: number;
   categories: Category[];
 }
 
+interface CategoryGroups {
+  [key: string]: CategoryGroup;
+}
+
 interface FooterCategoriesProps {
-  groups: CategoryGroup[];
+  groups: CategoryGroups;
   trackBehavior?: (action: string) => void;
   trackCategoryVisit: (slug: string) => void;
 }
-
-const GROUP_TO_CATEGORY_MAP: { [key: string]: string } = {
-  'World': 'world',
-  'Counties': 'counties',
-  'Politics': 'politics',
-  'Business': 'business',
-  'Opinion': 'opinion',
-  'Sports': 'sports',
-  'Life & Style': 'lifestyle',
-  'Entertainment': 'entertainment',
-  'Technology': 'tech',
-  'Health': 'health',
-  'Education': 'education',
-  'Crime & Security': 'crime-security',
-  'Other': 'other',
-};
 
 const CATEGORY_ICONS: { [key: string]: string } = {
   'World': '🌍',
@@ -55,18 +46,19 @@ const CATEGORY_ICONS: { [key: string]: string } = {
 };
 
 const DISPLAY_ORDER = [
-  'World',
-  'Counties',
-  'Politics',
-  'Business',
-  'Sports',
-  'Entertainment',
-  'Technology',
-  'Health',
-  'Education',
-  'Crime & Security',
-  'Opinion',
-  'Life & Style',
+  'world',
+  'counties',
+  'politics',
+  'business',
+  'sports',
+  'entertainment',
+  'tech',
+  'health',
+  'education',
+  'crime-security',
+  'opinion',
+  'lifestyle',
+  'other'
 ];
 
 export default function FooterCategories({ groups, trackBehavior, trackCategoryVisit }: FooterCategoriesProps) {
@@ -83,36 +75,41 @@ export default function FooterCategories({ groups, trackBehavior, trackCategoryV
     }
   }, [router, trackBehavior, trackCategoryVisit]);
 
-  const handleCategoryGroupClick = useCallback((groupTitle: string, mainSlug?: string | null) => {
-    const categorySlug = mainSlug || GROUP_TO_CATEGORY_MAP[groupTitle];
-    if (categorySlug) {
-      if (trackBehavior) trackBehavior(categorySlug);
-      trackCategoryVisit(categorySlug);
-      router.push(`/client/categories/${categorySlug}`);
+  const handleCategoryGroupClick = useCallback((mainSlug: string) => {
+    if (mainSlug) {
+      if (trackBehavior) trackBehavior(mainSlug);
+      trackCategoryVisit(mainSlug);
+      router.push(`/client/categories/${mainSlug}`);
     }
   }, [router, trackBehavior, trackCategoryVisit]);
 
-  if (!groups.length) return null;
+  const sortedGroups = useMemo(() => {
+    const groupArray = Object.entries(groups).map(([key, group]) => ({
+      key,
+      ...group
+    }));
 
-  const sortedGroups = [...groups].sort((a, b) => {
-    const indexA = DISPLAY_ORDER.indexOf(a.title);
-    const indexB = DISPLAY_ORDER.indexOf(b.title);
-    if (indexA === -1 && indexB === -1) return 0;
-    if (indexA === -1) return 1;
-    if (indexB === -1) return -1;
-    return indexA - indexB;
-  });
+    return groupArray.sort((a, b) => {
+      const indexA = DISPLAY_ORDER.indexOf(a.key);
+      const indexB = DISPLAY_ORDER.indexOf(b.key);
+      
+      if (indexA === -1 && indexB === -1) return 0;
+      if (indexA === -1) return 1;
+      if (indexB === -1) return -1;
+      return indexA - indexB;
+    });
+  }, [groups]);
 
-  const displayGroups = sortedGroups.slice(0, 12);
+  if (!sortedGroups.length) return null;
 
   return (
     <div className="footer-categories-section">
       <div className="footer-mega-grid">
-        {displayGroups.map((group, idx) => (
-          <div key={`${group.title}-${idx}`} className="footer-section">
+        {sortedGroups.map((group, idx) => (
+          <div key={`${group.key}-${idx}`} className="footer-section">
             <button
               className="footer-section-header clickable"
-              onClick={() => handleCategoryGroupClick(group.title, group.mainSlug)}
+              onClick={() => handleCategoryGroupClick(group.mainSlug || group.slug)}
               type="button"
               aria-label={`Navigate to ${group.title} category`}
             >
@@ -138,6 +135,12 @@ export default function FooterCategories({ groups, trackBehavior, trackCategoryV
             </ul>
           </div>
         ))}
+        
+        <div className="footer-ad-space">
+          <div className="footer-ad-placeholder">
+            Ad Space<br/>Available
+          </div>
+        </div>
       </div>
 
       <div className="footer-mobile-static-links">
