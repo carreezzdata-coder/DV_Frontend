@@ -48,7 +48,7 @@ export default function Footer() {
 
   const groups = useMemo(() => {
     if (!rawGroups || typeof rawGroups !== 'object' || Object.keys(rawGroups).length === 0) {
-      return [];
+      return {};
     }
     
     const orderedGroups = [
@@ -64,27 +64,34 @@ export default function Footer() {
       { key: 'other', order: 10 }
     ];
 
-    return orderedGroups
-      .map(({ key }) => {
-        const group = rawGroups[key];
-        if (!group) return null;
-        return {
+    const groupsObject: { [key: string]: any } = {};
+    
+    orderedGroups.forEach(({ key, order }) => {
+      const group = rawGroups[key];
+      if (group) {
+        groupsObject[key] = {
           title: group.title || key,
           icon: group.icon || '📰',
           description: group.description || '',
           mainSlug: group.mainSlug || group.slug || key,
+          slug: group.slug || key,
+          color: group.color || '#000000',
+          order: order,
           categories: Array.isArray(group.categories) ? group.categories : []
         };
-      })
-      .filter(Boolean) as CategoryGroup[];
+      }
+    });
+
+    return groupsObject;
   }, [rawGroups]);
 
   useEffect(() => {
-    if (!groups.length || imagesLoaded || !isHydrated) return;
+    const groupKeys = Object.keys(groups);
+    if (groupKeys.length === 0 || imagesLoaded || !isHydrated) return;
 
     const loadImages = async () => {
       try {
-        const allSubCategories = groups.flatMap(group => group.categories);
+        const allSubCategories = Object.values(groups).flatMap(group => group.categories);
         
         const imagePromises = allSubCategories.map(async (category) => {
           try {
