@@ -32,8 +32,42 @@ const GROUP_TO_CATEGORY_MAP: { [key: string]: string } = {
   'Life & Style': 'lifestyle',
   'Entertainment': 'entertainment',
   'Technology': 'tech',
+  'Health': 'health',
+  'Education': 'education',
+  'Crime & Security': 'crime-security',
   'Other': 'other',
 };
+
+const CATEGORY_ICONS: { [key: string]: string } = {
+  'World': '🌍',
+  'Counties': '🏛️',
+  'Politics': '⚖️',
+  'Business': '💼',
+  'Opinion': '💭',
+  'Sports': '⚽',
+  'Life & Style': '✨',
+  'Entertainment': '🎬',
+  'Technology': '💻',
+  'Health': '🏥',
+  'Education': '📚',
+  'Crime & Security': '🚔',
+  'Other': '📌',
+};
+
+const DISPLAY_ORDER = [
+  'World',
+  'Counties',
+  'Politics',
+  'Business',
+  'Sports',
+  'Entertainment',
+  'Technology',
+  'Health',
+  'Education',
+  'Crime & Security',
+  'Opinion',
+  'Life & Style',
+];
 
 export default function FooterCategories({ groups, trackBehavior, trackCategoryVisit }: FooterCategoriesProps) {
   const router = useRouter();
@@ -60,10 +94,21 @@ export default function FooterCategories({ groups, trackBehavior, trackCategoryV
 
   if (!groups.length) return null;
 
+  const sortedGroups = [...groups].sort((a, b) => {
+    const indexA = DISPLAY_ORDER.indexOf(a.title);
+    const indexB = DISPLAY_ORDER.indexOf(b.title);
+    if (indexA === -1 && indexB === -1) return 0;
+    if (indexA === -1) return 1;
+    if (indexB === -1) return -1;
+    return indexA - indexB;
+  });
+
+  const displayGroups = sortedGroups.slice(0, 12);
+
   return (
     <div className="footer-categories-section">
       <div className="footer-mega-grid">
-        {groups.map((group, idx) => (
+        {displayGroups.map((group, idx) => (
           <div key={`${group.title}-${idx}`} className="footer-section">
             <button
               className="footer-section-header clickable"
@@ -72,7 +117,7 @@ export default function FooterCategories({ groups, trackBehavior, trackCategoryV
               aria-label={`Navigate to ${group.title} category`}
             >
               <span className="footer-icon" aria-hidden="true">
-                {group.icon || getCategoryIcon(group.mainSlug || '')}
+                {CATEGORY_ICONS[group.title] || group.icon || getCategoryIcon(group.mainSlug || '')}
               </span>
               <h3 className="footer-section-title">{group.title}</h3>
               <span className="main-category-indicator" aria-hidden="true">→</span>
